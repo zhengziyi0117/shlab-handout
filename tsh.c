@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 
 //目前主要思路
 //如果是后台作业-> fork子进程后台工作
-//如果是前台作业-> 直接主进程工作
+//如果是前台作业-> fork子进程工作 但是需要用主动wait等待结束
 //输入ctrl+c or ctrl+z 停止前台作业 返回到主进程的命令行
 //只能ctrl+d来停止tiny shell
 //
@@ -201,7 +201,6 @@ void eval(char *cmdline)
                 exit(0);
             }
         }
-
         sigprocmask(SIG_SETMASK,&prev_one,NULL);
         //阻塞一切，为了加入此job
         sigprocmask(SIG_BLOCK,&mask_all,NULL);
@@ -282,7 +281,7 @@ int parseline(const char *cmdline, char **argv)
  */
 int builtin_cmd(char **argv) 
 {
-    char *arg=*argv[0];
+    char *arg=argv[0];
     sigset_t  mask_all,prev_;
     sigfillset(&mask_all);
 
@@ -305,6 +304,68 @@ int builtin_cmd(char **argv)
  */
 void do_bgfg(char **argv) 
 {
+    char *jid;
+    int id=0;
+    struct job_t *jb;
+    sigset_t  mask_all,prev,mask_one;
+    sigfillset(&mask_all);
+    sigaddset(&mask_one,SIGCHLD);
+    if(argv[1]==NULL){
+        printf("bg command requires PID or %jobid argument\n");
+        return ;
+    }
+    jid=argv[1];
+    if(*jid=='%'){
+        jid++;
+    }
+
+    id=atoi(jid);
+    //指针jb访问全局变量，阻塞信号
+    sigprocmask(SIG_BLOCK,&mask_all,&prev);
+    jb=getjobjid(jobs,id);
+    if(jb==NULL){
+        sigprocmask(SIG_SETMASK,&prev,NULL);
+        printf("NO such process\n");
+        return ;
+    }
+
+    if(!strcmp(argv[0],"bg")){
+        switch (jb->state){
+            case BG:
+                /* 啥也不干 */
+                break;
+            case ST:
+            //接下来是给停止的这个信号发送继续的信号,阻塞信号集，防止此时退出终端
+
+                jb->state=BG;
+                kill(jb->pid,SIGCONT);
+                printf("[%d] (%d) %s", jb->jid, jb->pid, jb->cmdline);
+
+                break;
+            case UNDEF:
+            case FG:
+                printf("no such job\n");
+                break;
+            default:
+                break;
+        }
+    }else if(!strcmp(argv[0],"fg")){
+        switch (jb->state){
+            case FG:
+            case UNDEF:
+                printf("no such job\n");
+                break;
+            default:
+                
+                if(jb->state==ST) kill(jb->pid,SIGCONT);
+                jb->state=FG;
+                sigprocmask(SIG_SETMASK,&prev,NULL);
+                waitfg(jb->pid);
+                return ;
+        }
+    }
+
+    sigprocmask(SIG_SETMASK,&prev,NULL);
     return;
 }
 
@@ -313,12 +374,14 @@ void do_bgfg(char **argv)
  */
 void waitfg(pid_t pid)
 {
-    sigset_t mask;
+    sigset_t mask,prev;
     sigemptyset(&mask);
-    
-    while(pid==fgpid(jobs)){
-        sigsuspend();
+    sigprocmask(SIG_BLOCK,&mask,&prev);//因为fgpid要访问全局变量jobs,这里阻塞所有信号
+
+    while(pid==fgpid(jobs)){//如果pid还是前台作业就一直悬挂
+        sigsuspend(&prev);
     }
+    sigprocmask(SIG_SETMASK,&prev,NULL);
     return;
 }
 
@@ -336,7 +399,29 @@ void waitfg(pid_t pid)
 void sigchld_handler(int sig) 
 {
     int old_error=errno;
-
+    pid_t pid;
+    int status;
+    struct job_t *jb;
+    sigset_t mask,prev;
+    sigfillset(&mask);
+    
+    while((pid=waitpid(-1,&status,WNOHANG|WUNTRACED))>0){
+        sigprocmask(SIG_BLOCK,&mask,&prev);
+        jb=getjobpid(jobs,pid);
+        sigprocmask(SIG_SETMASK,&prev,NULL);
+        if(WIFEXITED(status)){
+            printf("Job [%d] (%d) terminated by signal %d\n", jb->jid, jb->pid, WTERMSIG(status));
+        }else if(WIFSTOPPED(status)){
+            jb->state=ST;
+            printf("Job [%d] (%d) stop by signal %d\n", jb->jid, jb->pid, WSTOPSIG(status));
+        }else if(WIFSIGNALED(status)){
+            printf("Job [%d] (%d) terminated by signal %d\n", jb->jid, jb->pid, WTERMSIG(status));
+        }
+        // else if(WIFSTOPPED)
+        sigprocmask(SIG_BLOCK,&mask,&prev);
+        deletejob(jobs,pid);
+        sigprocmask(SIG_SETMASK,&prev,NULL);
+    }
     errno=old_error;
     return;
 }
@@ -348,6 +433,17 @@ void sigchld_handler(int sig)
  */
 void sigint_handler(int sig) 
 {
+    int old_error=errno;
+    struct job_t *jb;
+    sigset_t mask,prev;
+    sigfillset(&mask);
+    sigprocmask(SIG_BLOCK,&mask,&prev);
+    int pid=fgpid(jobs);
+    if(pid){
+        kill(-pid,SIGINT);
+    }
+    sigprocmask(SIG_SETMASK,&prev,NULL);
+    errno=old_error;
     return;
 }
 
@@ -358,6 +454,21 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig) 
 {
+    int old_error=errno;
+    struct job_t *jb;
+    sigset_t mask,prev;
+    sigfillset(&mask);
+    sigprocmask(SIG_BLOCK,&mask,&prev);
+    int pid=fgpid(jobs);
+    if(pid){
+        jb=getjobpid(jobs,pid);
+        kill(pid,SIGSTOP);
+        printf("Job [%d] (%d) stopped by signal 20\n",jb->jid,pid);
+        // jb->state=ST;
+    }
+    
+    sigprocmask(SIG_SETMASK,&prev,NULL);
+    errno=old_error;
     return;
 }
 

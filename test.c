@@ -1,7 +1,9 @@
+#define log(STR) printf(#STR"[%d]\n",getpid());
 #include <unistd.h>
 #include <signal.h>
-
+#include <stdlib.h>
 #include <stdio.h>
+#include <sys/wait.h>
 
 // void handler(int sig)   //信号处理程序
 
@@ -70,8 +72,38 @@
 //     return 0;
 // }
 
-
+// void sig_handler(){
+//    printf("回收开始");
+//    int pid=waitpid(-1,NULL,0);
+//    printf("[%d]\n",pid);
+//    // return ;
+// }
+// void sigint_handler_empty(){
+//   printf("do noting\n");
+// }
+// void sigint_handler(){
+//    printf("I've died\n");
+//    exit(3);
+//    // return ;
+// }
+// int main(){
+//    signal(SIGCHLD,sig_handler);
+//    signal(SIGINT,sigint_handler_empty);
+//    int pid;
+//    if((pid=fork())==0){
+//       signal(SIGINT,sigint_handler);
+//       setpgid(0,0);
+//       sleep(10000);
+//       printf("Child\n");
+//       exit(0);
+//    }
+//    sleep(1);
+//    kill(pid,SIGINT);
+//    printf("Parent\n");
+//    sleep(1000);
+//    return 0;
+// }
 int main(){
-   sleep(10000);
-   return 0;
+   log(dqwdq);
 }
+

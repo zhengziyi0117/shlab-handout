@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Aug  8 18:58:28 2022
+# Make data base, printed on Tue Aug  9 15:16:41 2022
 
 # Variables
 
@@ -49,7 +49,7 @@ LESSOPEN = ||/usr/bin/lesspipe.sh %s
 # environment
 VSCODE_CWD = /root
 # environment
-SSH_CONNECTION = 183.217.97.55 39683 172.17.57.247 22
+SSH_CONNECTION = 183.217.97.55 39829 172.17.57.247 22
 # environment
 NO_PROXY = 127.0.0.1
 # environment
@@ -63,7 +63,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 PWD = /shlab-handout
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/0/vscode-ipc-abf18be2-9f59-4538-afea-89ab4614b3a7.sock
+VSCODE_IPC_HOOK_CLI = /run/user/0/vscode-ipc-0ac87e35-2b1b-4985-91ad-4af1cb99ee6a.sock
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
@@ -99,7 +99,7 @@ SHLVL = 5
 # makefile (from `Makefile', line 10)
 CC = gcc
 # environment
-XDG_SESSION_ID = 1561
+XDG_SESSION_ID = 20
 # environment
 USER = root
 # makefile (from `Makefile', line 5)
@@ -123,7 +123,7 @@ MAKEFLAGS = Rrqp
 # environment
 MFLAGS = -Rrqp
 # environment
-SSH_CLIENT = 183.217.97.55 39683 22
+SSH_CLIENT = 183.217.97.55 39829 22
 # environment
 MAIL = /var/spool/mail/root
 # automatic
@@ -167,9 +167,9 @@ FILES = $(TSH) ./myspin ./mysplit ./mystop ./myint
 
 # Directories
 
-# . (device 64769, inode 2490403): 37 files, no impossibilities.
+# . (device 64769, inode 2490403): 40 files, no impossibilities.
 
-# 37 files, no impossibilities in 1 directories.
+# 40 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -270,7 +270,7 @@ Makefile:
 # Not a target:
 mysplit:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 19:18:06.814734138
+#  Last modified 2022-08-08 20:35:06.599945442
 #  File has been updated.
 #  Successfully updated.
 
@@ -341,7 +341,7 @@ rtest12:
 # Not a target:
 mystop:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 19:18:06.877736658
+#  Last modified 2022-08-08 20:35:06.659947842
 #  File has been updated.
 #  Successfully updated.
 
@@ -410,7 +410,7 @@ rtest05:
 # Not a target:
 myspin:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 19:18:06.757731858
+#  Last modified 2022-08-08 20:35:06.535942881
 #  File has been updated.
 #  Successfully updated.
 
@@ -438,7 +438,7 @@ test03:
 # Not a target:
 tsh:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 19:18:06.700729579
+#  Last modified 2022-08-08 20:35:06.481940721
 #  File has been updated.
 #  Successfully updated.
 
@@ -452,7 +452,7 @@ rtest15:
 # Not a target:
 myint:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 19:18:06.940739177
+#  Last modified 2022-08-08 20:35:06.763952003
 #  File has been updated.
 #  Successfully updated.
 
@@ -485,13 +485,13 @@ rtest04:
 
 # No general (`VPATH' variable) search path.
 
-# # of strings in strcache: 0 / lookups = 121 / hits = 121
+# # of strings in strcache: 0 / lookups = 124 / hits = 124
 # # of strcache buffers: 1 (* 8176 B/buffer = 8176 B)
-# strcache used: total = 0 (650) / max = 0 / min = 8176 / avg = 0
-# strcache free: total = 0 (7526) / max = 0 / min = 8176 / avg = 0
+# strcache used: total = 0 (669) / max = 0 / min = 8176 / avg = 0
+# strcache free: total = 0 (7507) / max = 0 / min = 8176 / avg = 0
 
 # strcache hash-table stats:
-# Load=76/8192=1%, Rehash=0, Collisions=1/121=1%
-# Finished Make data base on Mon Aug  8 18:58:28 2022
+# Load=79/8192=1%, Rehash=0, Collisions=1/124=1%
+# Finished Make data base on Tue Aug  9 15:16:41 2022
 
  
